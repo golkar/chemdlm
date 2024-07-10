@@ -655,7 +655,7 @@ class Diffusion(L.LightningModule):
     return x
 
   @torch.no_grad()
-  def _sample(self, num_steps=None, eps=1e-5):
+  def _sample(self, start_sequence=None, num_steps=None, eps=1e-5):
     """Generate samples from the model."""
     batch_size_per_gpu = self.config.loader.eval_batch_size
     if self.parameterization == 'ar':
@@ -663,9 +663,15 @@ class Diffusion(L.LightningModule):
     # Lightning auto-casting is not working in this method for some reason
     if num_steps is None:
       num_steps = self.config.sampling.steps
-    x = self._sample_prior(
-      batch_size_per_gpu,
-      self.config.model.length).to(self.device)
+    if start_sequence is None:
+      x = self._sample_prior(
+        batch_size_per_gpu,
+        self.config.model.length).to(self.device)
+    else:
+      # just repeat to fill batch
+      x = start_sequence.repeat(
+        batch_size_per_gpu, 1).to(self.device)
+  
     timesteps = torch.linspace(
       1, eps, num_steps + 1, device=self.device)
     dt = (1 - eps) / num_steps
@@ -697,7 +703,7 @@ class Diffusion(L.LightningModule):
         x = self.forward(x, unet_conditioning).argmax(dim=-1)
     return x
 
-  def restore_model_and_sample(self, num_steps, eps=1e-5):
+  def restore_model_and_sample(self, num_steps, start_sequence=None, eps=1e-5):
     """Generate samples from the model."""
     # Lightning auto-casting is not working in this method for some reason
     if self.ema:
@@ -709,7 +715,7 @@ class Diffusion(L.LightningModule):
         self.noise.parameters()))
     self.backbone.eval()
     self.noise.eval()
-    samples = self._sample(num_steps=num_steps, eps=eps)
+    samples = self._sample(start_sequence=start_sequence, num_steps=num_steps, eps=eps)
     if self.ema:
       self.ema.restore(itertools.chain(
         self.backbone.parameters(),

@@ -83,7 +83,7 @@ def _print_batch(train_ds, valid_ds, tokenizer, k=64):
     print('ids:', last)
 
 
-def generate_samples(config, logger, tokenizer):
+def generate_samples(config, logger, tokenizer, start_text=None):
   logger.info('Generating samples.')
   model = _load_from_checkpoint(config=config,
                                 tokenizer=tokenizer)
@@ -93,6 +93,14 @@ def generate_samples(config, logger, tokenizer):
     model.ema = None
   stride_length = config.sampling.stride_length
   num_strides = config.sampling.num_strides
+  start_sequence = tokenizer.encode(start_text) if start_text else None
+    
+  if start_sequence:
+      padded_sequence = torch.zeros((config.sampling.batch_size, config.model.length), dtype=torch.int64)      
+      seq_len = min(len(start_sequence), config.model.length)
+      padded_sequence[:, :seq_len] = torch.tensor(start_sequence[:seq_len], dtype=torch.int64).expand(config.sampling.batch_size, -1)
+      start_sequence = padded_sequence
+
   for _ in range(config.sampling.num_sample_batches):
     if config.sampling.semi_ar:
       _, intermediate_samples, _ = model.restore_model_and_semi_ar_sample(
@@ -107,7 +115,8 @@ def generate_samples(config, logger, tokenizer):
       # any text after the first EOS token.
     else:
       samples = model.restore_model_and_sample(
-        num_steps=config.sampling.steps)
+        num_steps=config.sampling.steps,
+        start_sequence=start_sequence)
       text_samples = model.tokenizer.batch_decode(samples)
       model.compute_generative_perplexity(text_samples)
   print('Text samples:', text_samples)
