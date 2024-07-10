@@ -8,6 +8,8 @@ import shutil
 import typing
 import urllib
 import zipfile
+import pandas as pd
+
 
 import datasets
 import fsspec
@@ -15,11 +17,21 @@ import requests
 import tokenizers
 import torch
 import transformers
+from selfies_tokenizer import SELFIESTokenizer
 
 import utils
 
 LOGGER = utils.get_logger(__name__)
 
+def load_selfies_dataset(file_path='coconut.sf', **kwargs):
+    with open(file_path, 'r') as file:
+        selfies_strings = [line.strip() for line in file]
+    
+    df = pd.DataFrame({'selfies': selfies_strings})
+    
+    dataset = datasets.Dataset.from_pandas(df, **kwargs)
+    
+    return dataset
 
 def wt_detokenizer(string):
   # contractions
@@ -370,6 +382,10 @@ def get_dataset(
       'ag_news',
       cache_dir=cache_dir,
       streaming=streaming)
+  elif dataset_name == 'coconue':
+    dataset = load_selfies_dataset(file_path='coconut.sf',
+                                   cache_dir=cache_dir,
+                                    streaming=streaming)
   else:
     dataset = datasets.load_dataset(
       dataset_name,
@@ -491,6 +507,8 @@ def get_tokenizer(config):
   elif config.data.tokenizer_name_or_path == 'bert-base-uncased':
     tokenizer = transformers.BertTokenizer.\
       from_pretrained('bert-base-uncased')
+  elif config.data.tokenizer_name_or_path == 'selfies':
+    tokenizer = SELFIESTokenizer()
   else:
     tokenizer = transformers.AutoTokenizer.from_pretrained(
       config.data.tokenizer_name_or_path)
