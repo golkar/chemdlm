@@ -382,7 +382,7 @@ def get_dataset(
       'ag_news',
       cache_dir=cache_dir,
       streaming=streaming)
-  elif dataset_name == 'coconue':
+  elif dataset_name == 'coconut':
     dataset = load_selfies_dataset(file_path='coconut.sf',
                                    cache_dir=cache_dir,
                                     streaming=streaming)
