@@ -23,13 +23,13 @@ import utils
 
 LOGGER = utils.get_logger(__name__)
 
-def load_selfies_dataset(file_path='coconut.sf', **kwargs):
+def load_selfies_dataset(file_path, **kwargs):
     with open(file_path, 'r') as file:
         selfies_strings = [line.strip() for line in file]
     
-    df = pd.DataFrame({'selfies': selfies_strings})
+    df = pd.DataFrame({'text': selfies_strings})
     
-    dataset = datasets.Dataset.from_pandas(df, **kwargs)
+    dataset = datasets.Dataset.from_pandas(df)
     
     return dataset
 
@@ -383,7 +383,7 @@ def get_dataset(
       cache_dir=cache_dir,
       streaming=streaming)
   elif dataset_name == 'coconut':
-    dataset = load_selfies_dataset(file_path='coconut.sf',
+    dataset = load_selfies_dataset(file_path='/mnt/home/sgolkar/ceph/datasets/chemdlm/coconut.sf',
                                    cache_dir=cache_dir,
                                     streaming=streaming)
   else:
@@ -393,7 +393,7 @@ def get_dataset(
       streaming=streaming)
 
   if dataset_name in ['lambada', 'openwebtext-train',
-                      'openwebtext-valid']:
+                      'openwebtext-valid', 'coconut']:
     data = dataset
   else:
     data = dataset[mode]

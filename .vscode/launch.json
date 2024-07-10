@@ -1,0 +1,27 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Default Test",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "python -u -m main",
+            "args": [
+                "loader.batch_size=16 loader.eval_batch_size=16 model=small data=coconut wandb.name=mdlm-owt parameterization=subs model.length=1024 eval.compute_generative_perplexity=True sampling.steps=100",
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+    ]
+}

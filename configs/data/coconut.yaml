@@ -1,6 +1,6 @@
 train: coconut
 valid: coconut
 tokenizer_name_or_path: selfies
-cache_dir: /share/kuleshov/ssahoo/textdiffusion/data
+cache_dir: /mnt/home/sgolkar/ceph/datasets/chemdlm/
 wrap: True
 streaming: False
