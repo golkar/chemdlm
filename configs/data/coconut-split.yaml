@@ -1,5 +1,5 @@
-train: coconut
-valid: coconut
+train: coconut_train
+valid: coconut_val
 tokenizer_name_or_path: selfies
 cache_dir: /mnt/home/sgolkar/ceph/datasets/chemdlm/
 wrap: False
